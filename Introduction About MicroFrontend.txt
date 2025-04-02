@@ -1,0 +1,48 @@
+Plan for Learning & Implementation
+------Introduction to Microfrontends
+
+What are Microfrontends?
+
+Why use them?
+
+Key benefits & challenges
+
+When to use and when not to use
+
+----------Core Concepts & Architecture
+
+Module Federation (WebPack 5)
+
+Host & Remote applications
+
+Communication between Microfrontends
+
+Shared dependencies
+
+----------------Setting Up a Simple Microfrontend Project
+
+Creating a Host and a Remote app
+
+Setting up Webpack Module Federation
+
+Running both apps together
+
+------------Communication Between Microfrontends
+
+Sharing components
+
+Passing state and data between apps
+
+------------Authentication & Routing in Microfrontends
+
+Handling authentication across multiple Microfrontends
+
+Using React Router for navigation
+
+--------------Best Practices & Deployment
+
+Folder structure
+
+CI/CD considerations
+
+Error handling & performance optimization

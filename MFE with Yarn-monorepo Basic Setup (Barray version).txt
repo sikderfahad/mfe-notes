@@ -1,0 +1,118 @@
+1) mkdir my-new-mfe && cd my-new-mfe
+
+2) yarn init -y	 [run from root]
+
+3) mkdir -p host remotes/header remotes/button  [make MFE Host and Remotes directory]
+
+4) Modify the root package.json file  [defines the workspace directory app]
+
+	"private"true,
+	"workspace": ["host", "remotes/*"]
+
+5) Run this command on Host and every Remote App directory
+
+  yarn create vite . --template react  [ create Vite app]
+  yarn add @originjs/vite-plugin-federation  [install vite-module-federation]
+
+6) Make a required Component in component folder like Button.jsx  [best practice]
+
+7) Modify the Remote App "vite.config.js" file like this
+
+  -------------------------------------------------------------
+  [
+    federation({
+      name: "remoteButton",  // Name of the remote app
+      filename: "remoteEntry.js",  // Will create a federation file with this name for remotely entry
+      exposes: { "./Button": "./src/components/Button.jsx" },  // Allowed host for use this available component or web-piece
+    })
+
+    server: { port: 5001 },  // Fixed the port
+    build: {
+      target: "esnext",  // Ensure it use the modern browser
+    },
+  ]
+  -------------------------------------------------------------
+  
+
+  import { defineConfig } from "vite";
+  import react from "@vitejs/plugin-react";
+  import federation from "@originjs/vite-plugin-federation";
+  
+  export default defineConfig({
+    plugins: [
+      react(),
+      federation({
+        name: "remoteButton",
+        filename: "remoteEntry.js",
+        exposes: { "./Button": "./src/components/Button.jsx" },
+        shared: ["react", "react-dom"],
+      }),
+    ],
+    server: { port: 5001 },
+    build: {
+      target: "esnext",
+    },
+  });
+
+
+8) Modify the Host App "vite.config.js" file like this
+
+-------------------------------------------------------------
+[
+  federation({
+    remotes: {
+      remoteButton: "http://localhost:5001/dist/assets/remoteEntry.js",  // Declar the Remote App name "remoteButton" and its getting path
+     },
+  })
+]
+-------------------------------------------------------------
+
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import federation from "@originjs/vite-plugin-federation";
+
+export default defineConfig({
+  plugins: [
+    react(),
+    federation({
+      remotes: {
+        remoteButton: "http://localhost:5001/dist/assets/remoteEntry.js",
+      },
+      shared: ["react", "react-dom"],
+    }),
+  ],
+  server: { port: 5000 },
+  build: {
+   target: "esnext",
+  },
+});
+
+
+9) Use the Remote into Host App
+
+[  Use "Suspense" and "lazy" for waiting the Remote App proparly appear and handle others part asynchronously.  ]
+
+
+
+import { lazy, Suspense } from "react";
+
+const RemoteButton = lazy(() => import("remoteButton/Button"));
+
+const App = () => {
+  return (
+    <>
+      <Suspense fallback={<p>Loading...</p>}>
+        <Remote1 />
+      </Suspense>
+    </>
+  )
+}
+
+
+
+10) Follow this steps Sequentially
+
+  i) Back to the root directory
+  ii) yarn workspace button build  // Build the Remote App to create the "remoteEntry.js" file 
+  iii) yarn workspace button dev  // Start the Remote App server 
+  iv) yarn workspace host dev  // Start the Host App server
